@@ -18,5 +18,17 @@ IDiningSimulator diningSimulator =
     new BreakfastSimulator(buffetService, reservationManager, guestGroupProvider, timeService);
 
 EhoteBuffetUi ui = new EhoteBuffetUi(reservationProvider, reservationManager, diningSimulator);
-
+IGuestProvider guestProvider = new RandomGuestGenerator();
 ui.Run();
+var guests = guestProvider.Provide(20);
+
+
+var guestsgroups = new GuestGroupProvider().SplitGuestsIntoGroups(guests, 7, 10);
+foreach (var guestGroup in guestsgroups)
+{
+    Console.WriteLine(guestGroup.Id);
+    foreach (var guestGroupGuest in guestGroup.Guests)
+    {
+        Console.WriteLine(guestGroupGuest.Name);
+    }
+}

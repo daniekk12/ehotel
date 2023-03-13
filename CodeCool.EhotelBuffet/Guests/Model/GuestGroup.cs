@@ -1,3 +1,11 @@
-﻿namespace CodeCool.EhotelBuffet.Guests.Model;
+﻿using System.Collections;
 
-public record GuestGroup(int Id, IEnumerable<Guest> Guests);
+namespace CodeCool.EhotelBuffet.Guests.Model;
+
+public record GuestGroup(int Id, IEnumerable<Guest> Guests) : IEnumerable
+{
+    public IEnumerator GetEnumerator()
+    {
+        throw new NotImplementedException();
+    }
+}
