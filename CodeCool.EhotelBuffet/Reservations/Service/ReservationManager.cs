@@ -5,7 +5,7 @@ namespace CodeCool.EhotelBuffet.Reservations.Service;
 
 public class ReservationManager: IReservationManager
 {
-    public List<Reservation> _Reservations= new List<Reservation>() ;
+    public List<Reservation> _Reservations = new List<Reservation>();
     public void AddReservation(Reservation reservation)
     {
         _Reservations.Add(reservation);
@@ -17,7 +17,10 @@ public class ReservationManager: IReservationManager
 
         foreach (var reservation in _Reservations)
         {
-            if (date.CompareTo(reservation.Start) >= 0 && date.CompareTo(reservation.End) <= 0)
+            Console.WriteLine(reservation.Guest);
+            Console.WriteLine($"StartDate:{reservation.Start},date:{date},endDate:{reservation.End}");
+            Console.WriteLine($"Is Between: {(reservation.Start <= date) && (reservation.End >= date)}");
+            if ((reservation.Start <= date) && (reservation.End >= date))
             {
                 GuestsForDate.Add(reservation.Guest);
             }
