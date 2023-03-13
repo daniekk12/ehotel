@@ -1,25 +1,42 @@
-﻿using CodeCool.EhotelBuffet.Menu.Model;
+﻿using System.Collections.Generic;
+using System.Linq;
+using CodeCool.EhotelBuffet.Menu.Model;
 
-namespace CodeCool.EhotelBuffet.Refill.Service;
-
-public class BasicRefillStrategy : IRefillStrategy
+namespace CodeCool.EhotelBuffet.Refill.Service
 {
-    private const int OptimalPortionCount = 3;
-
-    public Dictionary<MenuItem, int> GetInitialQuantities(IEnumerable<MenuItem> menuItems)
+    public class BasicRefillStrategy : IRefillStrategy
     {
-        var ret = new Dictionary<MenuItem, int>();
-        foreach (var menuItem in menuItems)
+        private const int OptimalPortionCount = 3;
+
+        public Dictionary<MenuItem, int> GetInitialQuantities(IEnumerable<MenuItem> menuItems)
         {
-            ret.Add(menuItem, OptimalPortionCount);
+            var ret = new Dictionary<MenuItem, int>();
+            foreach (var menuItem in menuItems)
+            {
+                ret.Add(menuItem, OptimalPortionCount);
+            }
+
+            return ret;
         }
 
-        return ret;
-    }
+        public Dictionary<MenuItem, int> GetRefillQuantities(IEnumerable<Portion> currentPortions)
+        {
+            var groupedByMenuItem = currentPortions.GroupBy(p => p.MenuItem);
+            var refillQuantities = new Dictionary<MenuItem, int>();
 
-    public Dictionary<MenuItem, int> GetRefillQuantities(IEnumerable<Portion> currentPortions)
-    {
-        return null;
-    }
+            foreach (var grouping in groupedByMenuItem)
+            {
+                var menuItem = grouping.Key;
+                var portionCount = grouping.Count();
+                var refillCount = OptimalPortionCount - portionCount;
 
+                if (refillCount > 0)
+                {
+                    refillQuantities.Add(menuItem, refillCount);
+                }
+            }
+
+            return refillQuantities;
+        }
+    }
 }
