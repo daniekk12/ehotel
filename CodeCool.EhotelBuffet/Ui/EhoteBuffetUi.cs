@@ -1,4 +1,5 @@
-﻿using CodeCool.EhotelBuffet.Guests.Model;
+﻿using System.Threading.Channels;
+using CodeCool.EhotelBuffet.Guests.Model;
 using CodeCool.EhotelBuffet.Guests.Service;
 using CodeCool.EhotelBuffet.Reservations.Service;
 using CodeCool.EhotelBuffet.Simulator.Model;
@@ -59,6 +60,7 @@ public class EhoteBuffetUi
 
     private void CreateReservations(IEnumerable<Guest> guests, DateTime seasonStart, DateTime seasonEnd)
     {
+        
     }
 
     private void PrintGuestsWithReservations()

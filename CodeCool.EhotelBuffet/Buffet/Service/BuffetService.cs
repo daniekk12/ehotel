@@ -20,20 +20,72 @@ public class BuffetService : IBuffetService
 
     public void Refill(IRefillStrategy refillStrategy)
     {
+        if (!_isInitialized)
+        {
+            var menuItems = _menuProvider.MenuItems;
+
+            var enumerable = menuItems as MenuItem[] ?? menuItems.ToArray();
+            var initialQuantities = refillStrategy.GetInitialQuantities(enumerable);
+
+            foreach (var menuItem in enumerable)
+            {
+                for (var i = 0; i < initialQuantities[menuItem]; i++)
+                {
+                    _currentPortions.Add(new Portion(menuItem, DateTime.Now));
+                }
+            }
+
+            _isInitialized = true;
+        }
+        else
+        {
+            var refillQuantities = refillStrategy.GetRefillQuantities(_currentPortions);
+
+            foreach (var menuItem in _currentPortions.Select(p => p.MenuItem).Distinct())
+            {
+                var refillQuantity = refillQuantities[menuItem];
+                for (var i = 0; i < refillQuantity; i++)
+                {
+                    _currentPortions.Add(new Portion(menuItem, DateTime.Now));
+                }
+            }
+        }
     }
 
     public void Reset()
     {
+        _currentPortions.Clear();
+        _isInitialized = false;
     }
 
     public bool Consume(MealType mealType)
     {
-        return false;
+        var portionsToConsume = _currentPortions
+            .Where(p => p.MenuItem.MealType == mealType)
+            .OrderByDescending(p => p.TimeStamp);
+
+        if (!portionsToConsume.Any())
+        {
+            return false;
+        }
+
+        _currentPortions.Remove(portionsToConsume.First());
+
+        return true;
     }
 
 
     public int CollectWaste(MealDurability mealDurability, DateTime currentDate)
     {
-        return 0;
+        var portionsToDiscard = _currentPortions
+            .Where(p => p.TimeStamp < currentDate && p.MenuItem.MealDurability == mealDurability)
+            .ToList();
+
+        foreach (var portion in portionsToDiscard)
+        {
+            _currentPortions.Remove(portion);
+        }
+
+        return portionsToDiscard.Sum(p => p.MenuItem.Cost);
     }
 }
