@@ -55,19 +55,41 @@ public class EhoteBuffetUi
 
     private IEnumerable<Guest> GetGuests()
     {
-        return null;
+        var allReservations = _reservationManager.GetAll();
+        var allGuests = new List<Guest>();
+        foreach (var reservation in allReservations)
+        {
+            allGuests.Add(reservation.Guest);
+        }
+
+        return allGuests.AsEnumerable();
     }
 
     private void CreateReservations(IEnumerable<Guest> guests, DateTime seasonStart, DateTime seasonEnd)
     {
-        
+        foreach (var guest in guests)
+        {
+            _reservationManager.AddReservation(_reservationProvider.Provide(guest, seasonStart, seasonEnd));
+            
+        }
     }
 
     private void PrintGuestsWithReservations()
     {
+        var allReservations = _reservationManager.GetAll();
+        foreach (var reservation in allReservations)
+        {
+            Console.WriteLine(reservation.Guest);
+        }
     }
 
     private static void PrintSimulationResults(DiningSimulationResults results)
     {
+        Console.WriteLine("Results");
+        Console.WriteLine($"Date: {results.Date}");
+        Console.WriteLine($"Total Guests: {results.TotalGuests}");
+        Console.WriteLine($"Happy Guests: {results.HappyGuests}");
+        Console.WriteLine($"Unhappy Guests: {results.UnhappyGuests}");
+        Console.WriteLine($"Waste cost: {results.FoodWasteCost}");
     }
 }
