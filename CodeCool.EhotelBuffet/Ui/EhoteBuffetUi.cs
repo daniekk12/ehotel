@@ -79,11 +79,13 @@ public class EhoteBuffetUi
 
     private static void PrintSimulationResults(DiningSimulationResults results)
     {
+        Console.WriteLine("-----------------");
         Console.WriteLine("Results");
         Console.WriteLine($"Date: {results.Date}");
         Console.WriteLine($"Total Guests: {results.TotalGuests}");
-        Console.WriteLine($"Happy Guests: {results.HappyGuests}");
-        Console.WriteLine($"Unhappy Guests: {results.UnhappyGuests}");
+        Console.WriteLine($"Happy Guests: {results.HappyGuests.Count()}");
+        Console.WriteLine($"Unhappy Guests: {results.UnhappyGuests.Count()}");
         Console.WriteLine($"Waste cost: {results.FoodWasteCost}");
+        Console.WriteLine("-----------------");
     }
 }
