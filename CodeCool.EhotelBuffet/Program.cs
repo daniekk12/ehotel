@@ -22,3 +22,4 @@ IDiningSimulator diningSimulator =
     new BreakfastSimulator(buffetService, reservationManager, guestGroupProvider, timeService);
 
 EhoteBuffetUi ui = new EhoteBuffetUi(reservationProvider, reservationManager, diningSimulator);
+ui.Run();
