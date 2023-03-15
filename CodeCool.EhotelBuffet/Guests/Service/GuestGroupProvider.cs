@@ -12,7 +12,15 @@ public class GuestGroupProvider : IGuestGroupProvider
         Random random = new Random();
         for (int i = 0; i < groupCount; i++)
         {
-            int guestsOnThisGroup = random.Next(0, maxGuestPerGroup);
+            int guestsOnThisGroup;
+            if (maxGuestPerGroup < 1)
+            {
+                guestsOnThisGroup = 0;
+            }
+            else
+            {
+                guestsOnThisGroup = random.Next(1, maxGuestPerGroup);
+            }
             List<Guest> guestGroup = new List<Guest>();
             while (guestsOnThisGroup > 0)
             {

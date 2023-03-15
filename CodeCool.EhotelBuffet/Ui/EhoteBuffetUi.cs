@@ -63,7 +63,8 @@ public class EhoteBuffetUi
     {
         foreach (var guest in guests)
         {
-            _reservationManager.AddReservation(_reservationProvider.Provide(guest, seasonStart, seasonEnd));
+            var reservation = _reservationProvider.Provide(guest, seasonStart, seasonEnd);
+            _reservationManager.AddReservation(reservation);
             
         }
     }
@@ -73,7 +74,7 @@ public class EhoteBuffetUi
         var allReservations = _reservationManager.GetAll();
         foreach (var reservation in allReservations)
         {
-            Console.WriteLine(reservation.Guest);
+            Console.WriteLine(reservation);
         }
     }
 
