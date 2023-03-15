@@ -26,12 +26,15 @@ public class BuffetService : IBuffetService
 
             var enumerable = menuItems as MenuItem[] ?? menuItems.ToArray();
             var initialQuantities = refillStrategy.GetInitialQuantities(enumerable);
-
+            
             foreach (var menuItem in enumerable)
             {
-                for (var i = 0; i < initialQuantities[menuItem]; i++)
+                foreach (var keyValuePair in initialQuantities)
                 {
-                    _currentPortions.Add(new Portion(menuItem, DateTime.Now));
+                    if (keyValuePair.Key.Equals(menuItem))
+                    {
+                        _currentPortions.Add(new Portion(menuItem, DateTime.Now));
+                    }
                 }
             }
 
@@ -39,14 +42,18 @@ public class BuffetService : IBuffetService
         }
         else
         {
+            var menuItems = _menuProvider.MenuItems;
             var refillQuantities = refillStrategy.GetRefillQuantities(_currentPortions);
-            foreach (var menuItem in _currentPortions.Select(p => p.MenuItem).Distinct())
+            foreach (var menuItem in menuItems)
             {
-                var refillQuantity = refillQuantities[menuItem];
-                for (var i = 0; i < refillQuantity; i++)
+                foreach (var refillQuantity in refillQuantities)
                 {
-                    _currentPortions.Add(new Portion(menuItem, DateTime.Now));
+                    if (refillQuantity.Key.Equals(menuItem))
+                    {
+                        _currentPortions.Add(new Portion(menuItem, DateTime.Now));
+                    }
                 }
+
             }
         }
     }
