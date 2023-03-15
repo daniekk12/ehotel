@@ -39,9 +39,10 @@ public class BreakfastSimulator : IDiningSimulator
     {
         ResetState();
         DateTime currentTime = _timeService.SetCurrentTime(config.Start);
-        
         var guests = _reservationManager.GetGuestsForDate(currentTime);
-        int maximumGuestsPerGroup = guests.Count() / config.MinimumGroupCount;
+        int guestsNumber = guests.Count();
+        int maximumGuestsPerGroup = 10;
+        Console.WriteLine(maximumGuestsPerGroup);
         var guestGroups = _guestGroupProvider.SplitGuestsIntoGroups(guests, config.MinimumGroupCount, maximumGuestsPerGroup);
         _buffetService.Reset();
         
@@ -63,7 +64,7 @@ public class BreakfastSimulator : IDiningSimulator
                 }
                 
             }
-
+            
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Short, currentTime);
             _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
         }

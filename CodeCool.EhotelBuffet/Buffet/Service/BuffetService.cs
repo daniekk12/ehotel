@@ -40,7 +40,6 @@ public class BuffetService : IBuffetService
         else
         {
             var refillQuantities = refillStrategy.GetRefillQuantities(_currentPortions);
-
             foreach (var menuItem in _currentPortions.Select(p => p.MenuItem).Distinct())
             {
                 var refillQuantity = refillQuantities[menuItem];
