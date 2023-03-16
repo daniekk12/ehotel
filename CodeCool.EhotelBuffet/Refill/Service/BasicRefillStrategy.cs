@@ -6,7 +6,7 @@ namespace CodeCool.EhotelBuffet.Refill.Service
 {
     public class BasicRefillStrategy : IRefillStrategy
     {
-        private int OptimalPortionCount = 20;
+        private int OptimalPortionCount = 3;
 
         // public BasicRefillStrategy(int expectedGuests)
         // {

@@ -57,12 +57,11 @@ public class BreakfastSimulator : IDiningSimulator
         int maximumGuestsPerGroup = (int)Math.Ceiling(guestDiv);
         var guestGroups = _guestGroupProvider.SplitGuestsIntoGroups(guests, groupCount, maximumGuestsPerGroup);
         _buffetService.Reset();
+        _buffetService.Refill(refillStrategy);  
 
         int breakfastGuests = 0;
         foreach (var guestGroup in guestGroups)
         {
-            _buffetService.Refill(refillStrategy);
-            Console.WriteLine(guestGroup.Id);
             foreach (var guest in guestGroup.Guests)
             {
                 Console.WriteLine(guest.Name);
@@ -87,10 +86,11 @@ public class BreakfastSimulator : IDiningSimulator
                     breakfastGuests++;
                 }
             }
+            _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Short, currentTime);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Medium, currentTime);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Long, currentTime);
-            _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
+            _buffetService.Refill(refillStrategy);
         }
         
 
