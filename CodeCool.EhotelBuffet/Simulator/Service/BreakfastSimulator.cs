@@ -50,12 +50,12 @@ public class BreakfastSimulator : IDiningSimulator
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Long, currentTime);
             return new DiningSimulationResults(currentTime, guestsNumber, _foodWasteCost, _happyGuests, _unhappyGuests);
         }
-        // Console.WriteLine($"NumberOfGuests:{guests.Count}");
-        // Console.WriteLine(guestDiv);
         int groupCount = new Random().Next(config.MinimumGroupCount, guestsNumber);
-        double guestDiv = 10;
-        int maximumGuestsPerGroup = (int)Math.Ceiling(guestDiv);
-        var guestGroups = _guestGroupProvider.SplitGuestsIntoGroups(guests, groupCount, maximumGuestsPerGroup);
+        // OLD double guestDiv = 10;
+        
+        int guestDiv = guestsNumber / groupCount;
+        // int maximumGuestsPerGroup = (int)Math.Ceiling(guestDiv);
+        var guestGroups = _guestGroupProvider.SplitGuestsIntoGroups(guests, groupCount, guestDiv);
         int breakfastGuests = 0;
         currentTime = _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
         foreach (var guestGroup in guestGroups)
@@ -63,7 +63,6 @@ public class BreakfastSimulator : IDiningSimulator
             _buffetService.Refill(refillStrategy, currentTime);
             foreach (var guest in guestGroup.Guests)
             {
-                Console.WriteLine(guest.Name);
                 bool foundMeal = false;
                 foreach (var meal in guest.MealPreferences)
                 {
@@ -90,17 +89,8 @@ public class BreakfastSimulator : IDiningSimulator
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Long, currentTime);
             currentTime = _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
         }
-        
-
-
-        // TODO Calculate maximum number of guests per group, using the MinimumGroupCount property of the configuration object.
-        
-        // TODO Define refill strategy
-
-
         return new DiningSimulationResults(currentTime, guestsNumber, _foodWasteCost, _happyGuests, _unhappyGuests);
     }
-
     private void ResetState()
     {
         _foodWasteCost = 0;
@@ -108,13 +98,4 @@ public class BreakfastSimulator : IDiningSimulator
         _unhappyGuests.Clear();
         _buffetService.Reset();
     }
-
-    // private int CalculateMaximumGuestsPerGroup(int minimumGroupCount, int guestCount)
-    // {
-    //     
-    //     while (guestCount > 0)
-    //     {
-    //         
-    //     }
-    // }
 }

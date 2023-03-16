@@ -72,25 +72,30 @@ public class EhoteBuffetUi
     private void PrintGuestsWithReservations()
     {
         var allReservations = _reservationManager.GetAll();
+        Console.WriteLine("\n--RESERVATIONS--");
         foreach (var reservation in allReservations)
         {
-            Console.WriteLine($"------------\n" +
+            Console.WriteLine($"\n\n" +
                               $"Name: {reservation.Guest.Name}\n" +
-                              $"Start date: {reservation.Start}\n" +
-                              $"End date: {reservation.End}");
+                              $"Guest Category: {reservation.Guest.GuestType}\n" +
+                              $"Guest's Favorite Meals: {string.Join(", ", reservation.Guest.MealPreferences)}\n" +
+                              $"Check-in: {reservation.Start}\n" +
+                              $"Check-out: {reservation.End}");
         }
+
+        Console.WriteLine("\n");
+        
     }
 
     private static void PrintSimulationResults(DiningSimulationResults results)
     {
         Console.WriteLine("-----------------");
-        Console.WriteLine("Results");
-        Console.WriteLine($"Date: {results.Date.Date}");
+        Console.WriteLine($"Results for {results.Date}");
         Console.WriteLine($"Total Expected Guests: {results.TotalGuests}");
         Console.WriteLine($"Total Actual Guests: {results.HappyGuests.Count() + results.UnhappyGuests.Count()}");
         Console.WriteLine($"Happy Guests: {results.HappyGuests.Count()}");
         Console.WriteLine($"Unhappy Guests: {results.UnhappyGuests.Count()}");
         Console.WriteLine($"Waste cost: {results.FoodWasteCost}");
-        Console.WriteLine("-----------------");
+        Console.WriteLine("-----------------\n");
     }
 }

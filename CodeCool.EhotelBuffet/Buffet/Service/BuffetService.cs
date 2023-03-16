@@ -20,7 +20,7 @@ public class BuffetService : IBuffetService
 
     public void Refill(IRefillStrategy refillStrategy, DateTime currentTime)
     {
-        List<Portion> portionsToAdd = new List<Portion>();
+        List<Portion> portionsToAdd;
         if (_isInitialized)
         {
             portionsToAdd = _refillService.AskForRefill(refillStrategy.GetRefillQuantities(_currentPortions), currentTime).ToList();
@@ -44,7 +44,6 @@ public class BuffetService : IBuffetService
     public bool Consume(MealType mealType)
     {
         var orderedMeals = _currentPortions.OrderBy(portion => portion.TimeStamp).ToList();
-        // Console.WriteLine(string.Join(", ", _currentPortions));
         foreach (var portion in orderedMeals)
         {
             if (portion.MenuItem.MealType==mealType)
@@ -64,7 +63,7 @@ public class BuffetService : IBuffetService
         var portionsToRemove = new List<Portion>();
         foreach (var currentPortion in _currentPortions)
         {
-        var durabilityTimeSpan = currentPortion.MenuItem.MealDurabilityInMinutes;
+            var durabilityTimeSpan = currentPortion.MenuItem.MealDurabilityInMinutes;
             if (currentPortion.MenuItem.MealDurability == mealDurability)
             {
                 var expirationTime = currentPortion.TimeStamp.AddMinutes(durabilityTimeSpan);
