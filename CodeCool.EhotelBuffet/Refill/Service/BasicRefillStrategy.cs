@@ -19,7 +19,22 @@ public class BasicRefillStrategy : IRefillStrategy
 
     public Dictionary<MenuItem, int> GetRefillQuantities(IEnumerable<Portion> currentPortions)
     {
-        return null;
+        var groupedByMenuItem = currentPortions.GroupBy(p => p.MenuItem);
+        var refillQuantities = new Dictionary<MenuItem, int>();
+
+        foreach (var grouping in groupedByMenuItem)
+        {
+            var menuItem = grouping.Key;
+            var portionCount = grouping.Count();
+            var refillCount = OptimalPortionCount - portionCount;
+
+            if (refillCount > 0)
+            {
+                refillQuantities.Add(menuItem, refillCount);
+            }
+        }
+
+        return refillQuantities;
     }
 
 }
