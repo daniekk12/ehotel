@@ -20,20 +20,51 @@ public class BuffetService : IBuffetService
 
     public void Refill(IRefillStrategy refillStrategy)
     {
+        if (_isInitialized)
+        {
+            _refillService.AskForRefill(refillStrategy.GetRefillQuantities(_currentPortions));
+            return;
+        }
+
+        _refillService.AskForRefill(refillStrategy.GetInitialQuantities(_menuProvider.MenuItems));
     }
 
     public void Reset()
     {
+        _currentPortions.Clear();
+        _isInitialized = false;
     }
 
     public bool Consume(MealType mealType)
     {
+        var orderedMeals = _currentPortions.OrderBy(portion => portion.TimeStamp);
+        foreach (var portion in orderedMeals)
+        {
+            if (portion.MenuItem.MealType==mealType)
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 
 
     public int CollectWaste(MealDurability mealDurability, DateTime currentDate)
     {
-        return 0;
+        int sum = 0;
+        foreach (var currentPortion in _currentPortions)
+        {
+            if (currentPortion.MenuItem.MealDurability == mealDurability)
+            {
+                if (currentPortion.TimeStamp.AddMinutes(currentPortion.MenuItem.MealDurabilityInMinutes) >= currentDate)
+                {
+                    sum += currentPortion.MenuItem.Cost;
+                    _currentPortions.Remove(currentPortion);
+                }
+            }
+        }
+
+        return sum;
     }
 }
