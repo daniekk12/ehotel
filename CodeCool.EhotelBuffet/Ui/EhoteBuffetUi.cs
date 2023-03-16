@@ -74,7 +74,10 @@ public class EhoteBuffetUi
         var allReservations = _reservationManager.GetAll();
         foreach (var reservation in allReservations)
         {
-            Console.WriteLine(reservation);
+            Console.WriteLine($"------------\n" +
+                              $"Name: {reservation.Guest.Name}\n" +
+                              $"Start date: {reservation.Start}\n" +
+                              $"End date: {reservation.End}");
         }
     }
 

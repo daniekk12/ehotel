@@ -6,7 +6,12 @@ namespace CodeCool.EhotelBuffet.Refill.Service
 {
     public class BasicRefillStrategy : IRefillStrategy
     {
-        private const int OptimalPortionCount = 3;
+        private int OptimalPortionCount = 20;
+
+        // public BasicRefillStrategy(int expectedGuests)
+        // {
+        //     OptimalPortionCount = expectedGuests;
+        // }
 
         public Dictionary<MenuItem, int> GetInitialQuantities(IEnumerable<MenuItem> menuItems)
         {

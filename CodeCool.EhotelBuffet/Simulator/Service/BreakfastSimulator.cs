@@ -40,26 +40,28 @@ public class BreakfastSimulator : IDiningSimulator
         DateTime currentTime = _timeService.SetCurrentTime(config.Start);
         var guests = _reservationManager.GetGuestsForDate(currentTime).ToList();
         int guestsNumber = guests.Count;
+        var refillStrategy = new BasicRefillStrategy();
         if (guestsNumber == 0)
         {
             Console.WriteLine("No guests on this day!");
-            _buffetService.Refill(new BasicRefillStrategy());
+            _buffetService.Refill(refillStrategy);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Short, currentTime);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Medium, currentTime);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Long, currentTime);
-            return new DiningSimulationResults(currentTime, guests.Count, _foodWasteCost, _happyGuests, _unhappyGuests);
+            return new DiningSimulationResults(currentTime, guestsNumber, _foodWasteCost, _happyGuests, _unhappyGuests);
         }
         // Console.WriteLine($"NumberOfGuests:{guests.Count}");
-        double guestDiv = guestsNumber / config.MinimumGroupCount;
-        int maximumGuestsPerGroup = (int)Math.Ceiling(guestDiv);
         // Console.WriteLine(guestDiv);
-        var guestGroups = _guestGroupProvider.SplitGuestsIntoGroups(guests, config.MinimumGroupCount, maximumGuestsPerGroup);
+        int groupCount = new Random().Next(config.MinimumGroupCount, guestsNumber);
+        double guestDiv = guestsNumber / groupCount;
+        int maximumGuestsPerGroup = (int)Math.Ceiling(guestDiv);
+        var guestGroups = _guestGroupProvider.SplitGuestsIntoGroups(guests, groupCount, maximumGuestsPerGroup);
         _buffetService.Reset();
 
         int breakfastGuests = 0;
         foreach (var guestGroup in guestGroups)
         {
-            _buffetService.Refill(new BasicRefillStrategy());
+            _buffetService.Refill(refillStrategy);
             Console.WriteLine(guestGroup.Id);
             foreach (var guest in guestGroup.Guests)
             {
@@ -69,6 +71,7 @@ public class BreakfastSimulator : IDiningSimulator
                 {
                     if (_buffetService.Consume(meal))
                     {
+                        _buffetService.Consume(meal);
                         foundMeal = true;
                     }                    
                 }
@@ -84,12 +87,11 @@ public class BreakfastSimulator : IDiningSimulator
                     breakfastGuests++;
                 }
             }
-            
+            _foodWasteCost += _buffetService.CollectWaste(MealDurability.Short, currentTime);
+            _foodWasteCost += _buffetService.CollectWaste(MealDurability.Medium, currentTime);
+            _foodWasteCost += _buffetService.CollectWaste(MealDurability.Long, currentTime);
+            _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
         }
-        _foodWasteCost += _buffetService.CollectWaste(MealDurability.Short, currentTime);
-        _foodWasteCost += _buffetService.CollectWaste(MealDurability.Medium, currentTime);
-        _foodWasteCost += _buffetService.CollectWaste(MealDurability.Long, currentTime);
-        _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
         
 
 
@@ -98,7 +100,7 @@ public class BreakfastSimulator : IDiningSimulator
         // TODO Define refill strategy
 
 
-        return new DiningSimulationResults(currentTime, breakfastGuests, _foodWasteCost, _happyGuests, _unhappyGuests);
+        return new DiningSimulationResults(currentTime, guestsNumber, _foodWasteCost, _happyGuests, _unhappyGuests);
     }
 
     private void ResetState()

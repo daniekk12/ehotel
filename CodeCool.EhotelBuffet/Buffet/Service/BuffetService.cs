@@ -86,12 +86,13 @@ public class BuffetService : IBuffetService
         var portionsToDiscard = _currentPortions
             .Where(p => p.TimeStamp < currentDate && p.MenuItem.MealDurability == mealDurability)
             .ToList();
-
+        int sum = 0;
         foreach (var portion in portionsToDiscard)
         {
+            sum += portion.MenuItem.Cost;
             _currentPortions.Remove(portion);
         }
 
-        return portionsToDiscard.Sum(p => p.MenuItem.Cost);
+        return sum;
     }
 }
