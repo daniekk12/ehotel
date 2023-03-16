@@ -41,10 +41,10 @@ public class BreakfastSimulator : IDiningSimulator
         var guests = _reservationManager.GetGuestsForDate(currentTime).ToList();
         int guestsNumber = guests.Count;
         var refillStrategy = new BasicRefillStrategy();
-        if (guestsNumber == 0)
+        if (guestsNumber == 0 || guestsNumber < config.MinimumGroupCount)
         {
             Console.WriteLine("No guests on this day!");
-            _buffetService.Refill(refillStrategy);
+            _buffetService.Refill(refillStrategy, currentTime);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Short, currentTime);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Medium, currentTime);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Long, currentTime);
@@ -53,15 +53,14 @@ public class BreakfastSimulator : IDiningSimulator
         // Console.WriteLine($"NumberOfGuests:{guests.Count}");
         // Console.WriteLine(guestDiv);
         int groupCount = new Random().Next(config.MinimumGroupCount, guestsNumber);
-        double guestDiv = guestsNumber / groupCount;
+        double guestDiv = 10;
         int maximumGuestsPerGroup = (int)Math.Ceiling(guestDiv);
         var guestGroups = _guestGroupProvider.SplitGuestsIntoGroups(guests, groupCount, maximumGuestsPerGroup);
-        _buffetService.Reset();
-        _buffetService.Refill(refillStrategy);  
-
         int breakfastGuests = 0;
+        currentTime = _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
         foreach (var guestGroup in guestGroups)
         {
+            _buffetService.Refill(refillStrategy, currentTime);
             foreach (var guest in guestGroup.Guests)
             {
                 Console.WriteLine(guest.Name);
@@ -86,11 +85,10 @@ public class BreakfastSimulator : IDiningSimulator
                     breakfastGuests++;
                 }
             }
-            _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Short, currentTime);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Medium, currentTime);
             _foodWasteCost += _buffetService.CollectWaste(MealDurability.Long, currentTime);
-            _buffetService.Refill(refillStrategy);
+            currentTime = _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
         }
         
 

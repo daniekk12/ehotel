@@ -4,5 +4,5 @@ namespace CodeCool.EhotelBuffet.Refill.Service;
 
 public interface IRefillService
 {
-    IEnumerable<Portion> AskForRefill(Dictionary<MenuItem, int> menuItemToPortions);
+    IEnumerable<Portion> AskForRefill(Dictionary<MenuItem, int> menuItemToPortions, DateTime currentTime);
 }

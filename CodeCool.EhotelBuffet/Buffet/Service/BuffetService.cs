@@ -18,15 +18,21 @@ public class BuffetService : IBuffetService
         _refillService = refillService;
     }
 
-    public void Refill(IRefillStrategy refillStrategy)
+    public void Refill(IRefillStrategy refillStrategy, DateTime currentTime)
     {
+        List<Portion> portionsToAdd = new List<Portion>();
         if (_isInitialized)
         {
-            _refillService.AskForRefill(refillStrategy.GetRefillQuantities(_currentPortions));
+            portionsToAdd = _refillService.AskForRefill(refillStrategy.GetRefillQuantities(_currentPortions), currentTime).ToList();
             return;
         }
-
-        _refillService.AskForRefill(refillStrategy.GetInitialQuantities(_menuProvider.MenuItems));
+        _isInitialized = true;
+        portionsToAdd = _refillService.AskForRefill(refillStrategy.GetInitialQuantities(_menuProvider.MenuItems), currentTime).ToList();   
+        
+        foreach (var portion in portionsToAdd)
+        {
+            _currentPortions.Add(portion);    
+        }
     }
 
     public void Reset()
@@ -37,11 +43,13 @@ public class BuffetService : IBuffetService
 
     public bool Consume(MealType mealType)
     {
-        var orderedMeals = _currentPortions.OrderBy(portion => portion.TimeStamp);
+        var orderedMeals = _currentPortions.OrderBy(portion => portion.TimeStamp).ToList();
+        // Console.WriteLine(string.Join(", ", _currentPortions));
         foreach (var portion in orderedMeals)
         {
             if (portion.MenuItem.MealType==mealType)
             {
+                _currentPortions.Remove(portion);
                 return true;
             }
         }
@@ -53,18 +61,24 @@ public class BuffetService : IBuffetService
     public int CollectWaste(MealDurability mealDurability, DateTime currentDate)
     {
         int sum = 0;
+        var portionsToRemove = new List<Portion>();
         foreach (var currentPortion in _currentPortions)
         {
+        var durabilityTimeSpan = currentPortion.MenuItem.MealDurabilityInMinutes;
             if (currentPortion.MenuItem.MealDurability == mealDurability)
             {
-                if (currentPortion.TimeStamp.AddMinutes(currentPortion.MenuItem.MealDurabilityInMinutes) >= currentDate)
+                var expirationTime = currentPortion.TimeStamp.AddMinutes(durabilityTimeSpan);
+                if (expirationTime<=currentDate)
                 {
                     sum += currentPortion.MenuItem.Cost;
-                    _currentPortions.Remove(currentPortion);
+                    portionsToRemove.Add(currentPortion);
                 }
             }
         }
-
+        foreach (var portion in portionsToRemove)
+        {
+            _currentPortions.Remove(portion);
+        }
         return sum;
     }
 }
