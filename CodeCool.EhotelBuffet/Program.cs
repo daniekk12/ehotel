@@ -10,7 +10,7 @@ using CodeCool.EhotelBuffet.Ui;
 
 ITimeService timeService = new TimeService();
 IMenuProvider menuProvider = new MenuProvider();
-IRefillService refillService = new RefillService(new BasicRefillStrategy());
+IRefillService refillService = new RefillService();
 IGuestGroupProvider guestGroupProvider = new GuestGroupProvider();
 
 IReservationProvider reservationProvider = new ReservationProvider(); 

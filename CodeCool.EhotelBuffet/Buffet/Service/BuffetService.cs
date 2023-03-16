@@ -20,79 +20,20 @@ public class BuffetService : IBuffetService
 
     public void Refill(IRefillStrategy refillStrategy)
     {
-        if (!_isInitialized)
-        {
-            var menuItems = _menuProvider.MenuItems;
-
-            var enumerable = menuItems as MenuItem[] ?? menuItems.ToArray();
-            var initialQuantities = refillStrategy.GetInitialQuantities(enumerable);
-            
-            foreach (var menuItem in enumerable)
-            {
-                foreach (var keyValuePair in initialQuantities)
-                {
-                    if (keyValuePair.Key.Equals(menuItem))
-                    {
-                        _currentPortions.Add(new Portion(menuItem, DateTime.Now));
-                    }
-                }
-            }
-
-            _isInitialized = true;
-        }
-        else
-        {
-            var menuItems = _menuProvider.MenuItems;
-            var refillQuantities = refillStrategy.GetRefillQuantities(_currentPortions);
-            foreach (var menuItem in menuItems)
-            {
-                foreach (var refillQuantity in refillQuantities)
-                {
-                    if (refillQuantity.Key.Equals(menuItem))
-                    {
-                        _currentPortions.Add(new Portion(menuItem, DateTime.Now));
-                    }
-                }
-
-            }
-        }
     }
 
     public void Reset()
     {
-        _currentPortions.Clear();
-        _isInitialized = false;
     }
 
     public bool Consume(MealType mealType)
     {
-        var portionsToConsume = _currentPortions
-            .Where(p => p.MenuItem.MealType == mealType)
-            .OrderByDescending(p => p.TimeStamp);
-
-        if (!portionsToConsume.Any())
-        {
-            return false;
-        }
-
-        _currentPortions.Remove(portionsToConsume.First());
-
-        return true;
+        return false;
     }
 
 
     public int CollectWaste(MealDurability mealDurability, DateTime currentDate)
     {
-        var portionsToDiscard = _currentPortions
-            .Where(p => p.TimeStamp < currentDate && p.MenuItem.MealDurability == mealDurability)
-            .ToList();
-        int sum = 0;
-        foreach (var portion in portionsToDiscard)
-        {
-            sum += portion.MenuItem.Cost;
-            _currentPortions.Remove(portion);
-        }
-
-        return sum;
+        return 0;
     }
 }
