@@ -51,10 +51,7 @@ public class BreakfastSimulator : IDiningSimulator
             return new DiningSimulationResults(currentTime, guestsNumber, _foodWasteCost, _happyGuests, _unhappyGuests);
         }
         int groupCount = new Random().Next(config.MinimumGroupCount, guestsNumber);
-        // OLD double guestDiv = 10;
-        
         int guestDiv = guestsNumber / groupCount;
-        // int maximumGuestsPerGroup = (int)Math.Ceiling(guestDiv);
         var guestGroups = _guestGroupProvider.SplitGuestsIntoGroups(guests, groupCount, guestDiv);
         int breakfastGuests = 0;
         currentTime = _timeService.IncreaseCurrentTime(config.CycleLengthInMinutes);
