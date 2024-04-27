@@ -11,8 +11,8 @@ public class EhoteBuffetUi
 {
     private readonly IReservationManager _reservationManager;
     private readonly IDiningSimulator _diningSimulator;
-
     private readonly IReservationProvider _reservationProvider;
+    private readonly IGuestProvider _guestProvider = new RandomGuestGenerator();
 
     public EhoteBuffetUi(
         IReservationProvider reservationProvider,
@@ -30,7 +30,7 @@ public class EhoteBuffetUi
         DateTime seasonStart = DateTime.Today;
         DateTime seasonEnd = DateTime.Today.AddDays(3);
 
-        var guests = GetGuests();
+        var guests = GetGuests(guestCount).ToList();
         CreateReservations(guests, seasonStart, seasonEnd);
 
         PrintGuestsWithReservations();
@@ -53,23 +53,18 @@ public class EhoteBuffetUi
         Console.ReadLine();
     }
 
-    private IEnumerable<Guest> GetGuests()
+    private IEnumerable<Guest> GetGuests(int quantity)
     {
-        var allReservations = _reservationManager.GetAll();
-        var allGuests = new List<Guest>();
-        foreach (var reservation in allReservations)
-        {
-            allGuests.Add(reservation.Guest);
-        }
-
-        return allGuests.AsEnumerable();
+        var guests = _guestProvider.Provide(quantity);
+        return guests;
     }
 
     private void CreateReservations(IEnumerable<Guest> guests, DateTime seasonStart, DateTime seasonEnd)
     {
         foreach (var guest in guests)
         {
-            _reservationManager.AddReservation(_reservationProvider.Provide(guest, seasonStart, seasonEnd));
+            var reservation = _reservationProvider.Provide(guest, seasonStart, seasonEnd);
+            _reservationManager.AddReservation(reservation);
             
         }
     }
@@ -79,17 +74,23 @@ public class EhoteBuffetUi
         var allReservations = _reservationManager.GetAll();
         foreach (var reservation in allReservations)
         {
-            Console.WriteLine(reservation.Guest);
+            Console.WriteLine($"------------\n" +
+                              $"Name: {reservation.Guest.Name}\n" +
+                              $"Start date: {reservation.Start}\n" +
+                              $"End date: {reservation.End}");
         }
     }
 
     private static void PrintSimulationResults(DiningSimulationResults results)
     {
+        Console.WriteLine("-----------------");
         Console.WriteLine("Results");
-        Console.WriteLine($"Date: {results.Date}");
-        Console.WriteLine($"Total Guests: {results.TotalGuests}");
-        Console.WriteLine($"Happy Guests: {results.HappyGuests}");
-        Console.WriteLine($"Unhappy Guests: {results.UnhappyGuests}");
+        Console.WriteLine($"Date: {results.Date.Date}");
+        Console.WriteLine($"Total Expected Guests: {results.TotalGuests}");
+        Console.WriteLine($"Total Actual Guests: {results.HappyGuests.Count() + results.UnhappyGuests.Count()}");
+        Console.WriteLine($"Happy Guests: {results.HappyGuests.Count()}");
+        Console.WriteLine($"Unhappy Guests: {results.UnhappyGuests.Count()}");
         Console.WriteLine($"Waste cost: {results.FoodWasteCost}");
+        Console.WriteLine("-----------------");
     }
 }

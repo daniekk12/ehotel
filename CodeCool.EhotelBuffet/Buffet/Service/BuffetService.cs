@@ -20,36 +20,13 @@ public class BuffetService : IBuffetService
 
     public void Refill(IRefillStrategy refillStrategy)
     {
-        if (!_isInitialized)
+        if (_isInitialized)
         {
-            var menuItems = _menuProvider.MenuItems;
-
-            var enumerable = menuItems as MenuItem[] ?? menuItems.ToArray();
-            var initialQuantities = refillStrategy.GetInitialQuantities(enumerable);
-
-            foreach (var menuItem in enumerable)
-            {
-                for (var i = 0; i < initialQuantities[menuItem]; i++)
-                {
-                    _currentPortions.Add(new Portion(menuItem, DateTime.Now));
-                }
-            }
-
-            _isInitialized = true;
+            _refillService.AskForRefill(refillStrategy.GetRefillQuantities(_currentPortions));
+            return;
         }
-        else
-        {
-            var refillQuantities = refillStrategy.GetRefillQuantities(_currentPortions);
 
-            foreach (var menuItem in _currentPortions.Select(p => p.MenuItem).Distinct())
-            {
-                var refillQuantity = refillQuantities[menuItem];
-                for (var i = 0; i < refillQuantity; i++)
-                {
-                    _currentPortions.Add(new Portion(menuItem, DateTime.Now));
-                }
-            }
-        }
+        _refillService.AskForRefill(refillStrategy.GetInitialQuantities(_menuProvider.MenuItems));
     }
 
     public void Reset()
@@ -60,32 +37,34 @@ public class BuffetService : IBuffetService
 
     public bool Consume(MealType mealType)
     {
-        var portionsToConsume = _currentPortions
-            .Where(p => p.MenuItem.MealType == mealType)
-            .OrderByDescending(p => p.TimeStamp);
-
-        if (!portionsToConsume.Any())
+        var orderedMeals = _currentPortions.OrderBy(portion => portion.TimeStamp);
+        foreach (var portion in orderedMeals)
         {
-            return false;
+            if (portion.MenuItem.MealType==mealType)
+            {
+                return true;
+            }
         }
 
-        _currentPortions.Remove(portionsToConsume.First());
-
-        return true;
+        return false;
     }
 
 
     public int CollectWaste(MealDurability mealDurability, DateTime currentDate)
     {
-        var portionsToDiscard = _currentPortions
-            .Where(p => p.TimeStamp < currentDate && p.MenuItem.MealDurability == mealDurability)
-            .ToList();
-
-        foreach (var portion in portionsToDiscard)
+        int sum = 0;
+        foreach (var currentPortion in _currentPortions)
         {
-            _currentPortions.Remove(portion);
+            if (currentPortion.MenuItem.MealDurability == mealDurability)
+            {
+                if (currentPortion.TimeStamp.AddMinutes(currentPortion.MenuItem.MealDurabilityInMinutes) >= currentDate)
+                {
+                    sum += currentPortion.MenuItem.Cost;
+                    _currentPortions.Remove(currentPortion);
+                }
+            }
         }
 
-        return portionsToDiscard.Sum(p => p.MenuItem.Cost);
+        return sum;
     }
 }

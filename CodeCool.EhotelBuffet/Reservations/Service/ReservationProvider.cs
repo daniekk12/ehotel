@@ -8,7 +8,7 @@ public class ReservationProvider: IReservationProvider
     public Reservation Provide(Guest guest, DateTime seasonStart, DateTime seasonEnd)
     {
         DateTime startReservation = GetRandomDateTime(seasonStart, seasonEnd);
-        DateTime endReservation = GetRandomDateTime(startReservation, seasonEnd);
+        DateTime endReservation = GetRandomDateTime(startReservation.AddDays(1), seasonEnd);
         return new Reservation(startReservation, endReservation, guest);
     }
 
