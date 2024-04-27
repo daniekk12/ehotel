@@ -5,7 +5,7 @@ namespace CodeCool.EhotelBuffet.Buffet.Service;
 
 public interface IBuffetService
 {
-    void Refill(IRefillStrategy refillStrategy);
+    void Refill(IRefillStrategy refillStrategy, DateTime currentTime);
     bool Consume(MealType mealType);
     int CollectWaste(MealDurability mealDurability, DateTime currentDate);
     void Reset();

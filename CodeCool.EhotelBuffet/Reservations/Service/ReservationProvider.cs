@@ -12,7 +12,7 @@ public class ReservationProvider: IReservationProvider
         return new Reservation(startReservation, endReservation, guest);
     }
 
-    public DateTime GetRandomDateTime( DateTime seasonStart,DateTime seasonEnd)
+    private DateTime GetRandomDateTime( DateTime seasonStart,DateTime seasonEnd)
     {
         Random random = new Random();
         TimeSpan timeSpan = seasonEnd - seasonStart;
